@@ -11,6 +11,10 @@ public class PlayerAnimation : MonoBehaviour
     public float feetHeightOffset = 0f;
     [Tooltip("Forward/back offset for feet (negative = behind player, positive = in front).")]
     public float feetForwardOffset = -0.2f; // Slightly behind to keep feet visible when looking down
+    [Tooltip("Velocidade horizontal mínima para considerar que o player está andando.")]
+    public float walkThreshold = 0.1f;
+
+    private static readonly int WalkingHash = Animator.StringToHash("Walking");
 
     void Awake()
     {
@@ -30,12 +34,9 @@ public class PlayerAnimation : MonoBehaviour
         // Obter velocidade horizontal (ignorando movimento vertical)
         float hSpeed = new Vector2(movement.Velocity.x, movement.Velocity.z).magnitude;
 
-        // Normalizar velocidade para animação (0 = idle, 1 = walk, >1 = run)
-        float walkSpeed = movement.moveSpeed;    // 7f
-        float runSpeed = movement.sprintSpeed;   // 10.5f
-
-        float normalizedSpeed = Mathf.InverseLerp(0f, runSpeed, hSpeed);
-        animator.SetFloat("Speed", normalizedSpeed);
+        // Walking = true -> animação de andar; false -> Idle
+        bool walking = hSpeed > walkThreshold;
+        animator.SetBool(WalkingHash, walking);
     }
 
     void LateUpdate()
